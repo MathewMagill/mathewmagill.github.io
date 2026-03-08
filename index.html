@@ -64,7 +64,12 @@
         width: 12ch;
       }
 
-      input[type="text"]:focus {
+      /* (Optional) a bit wider for the age sentence too */
+      #age {
+        width: 12ch;
+      }
+
+      input[type="text":focus {
         border-color: #93c5fd;
       }
 
@@ -183,6 +188,38 @@
           Type: 我叫 + your name + 。 (parentheses not included)
         </div>
       </main>
+
+      <main class="card is-locked" id="card3" aria-label="Typing card 我十三岁">
+        <h1 class="prompt" aria-label="Prompt">我十三岁。</h1>
+
+        <div class="row">
+          <label
+            for="age"
+            class="sr-only"
+            style="position: absolute; left: -9999px"
+            >Type 我十三岁。</label
+          >
+          <input
+            id="age"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-describedby="hint3"
+          />
+          <span
+            id="check3"
+            class="check"
+            aria-label="Correct"
+            title="Correct"
+            >✓</span
+          >
+        </div>
+
+        <div id="hint3" class="hint">Type exactly: 我十三岁。</div>
+      </main>
     </div>
 
     <script>
@@ -195,17 +232,22 @@
         const input2 = document.getElementById("intro");
         const check2 = document.getElementById("check2");
 
-        // Allow either "我叫名字。" or "我叫 名字。(flexible space)"
+        const card3 = document.getElementById("card3");
+        const input3 = document.getElementById("age");
+        const check3 = document.getElementById("check3");
+        const target3 = "我十三岁。";
+
+        // Allow either "我叫名字。" or "我叫 名字。" (flexible space)
         // Require at least one character for the name, disallow parentheses in the typed name.
         const introRe = /^我叫\s*[^()（）]+。$/;
 
-        // Disable copy/paste/cut and context menu (best-effort) for both inputs.
+        // Disable copy/paste/cut and context menu (best-effort) for all inputs.
         const prevent = (e) => {
           e.preventDefault();
           return false;
         };
 
-        [input1, input2].forEach((input) => {
+        [input1, input2, input3].forEach((input) => {
           ["copy", "paste", "cut", "contextmenu"].forEach((evt) =>
             input.addEventListener(evt, prevent)
           );
@@ -220,14 +262,12 @@
           });
         });
 
-        function unlockCard2() {
-          if (!card2) return;
-          if (!card2.classList.contains("is-locked")) return;
+        function unlock(card, input) {
+          if (!card) return;
+          if (!card.classList.contains("is-locked")) return;
 
-          card2.classList.remove("is-locked");
-
-          // After DOM paints, focus the second input.
-          requestAnimationFrame(() => input2.focus());
+          card.classList.remove("is-locked");
+          requestAnimationFrame(() => input && input.focus());
         }
 
         function update1() {
@@ -238,7 +278,7 @@
           input1.classList.toggle("bad", value.length > 0 && !ok);
           check1.classList.toggle("visible", ok);
 
-          if (ok) unlockCard2();
+          if (ok) unlock(card2, input2);
         }
 
         function update2() {
@@ -248,12 +288,25 @@
           input2.classList.toggle("good", ok);
           input2.classList.toggle("bad", value.length > 0 && !ok);
           check2.classList.toggle("visible", ok);
+
+          if (ok) unlock(card3, input3);
+        }
+
+        function update3() {
+          const value = input3.value;
+          const ok = value === target3;
+
+          input3.classList.toggle("good", ok);
+          input3.classList.toggle("bad", value.length > 0 && !ok);
+          check3.classList.toggle("visible", ok);
         }
 
         input1.addEventListener("input", update1);
         input2.addEventListener("input", update2);
+        input3.addEventListener("input", update3);
         update1();
         update2();
+        update3();
 
         // Focus first input on load for convenience.
         window.addEventListener("load", () => input1.focus());
