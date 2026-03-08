@@ -1,18 +1,292 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Typing — 你好！</title>
     <style>
-        /* Example styles */
-        input[type="text"]:focus {
-            border: 2px solid blue;
-        }
+      :root {
+        --ok: #16a34a;
+        --bad: #dc2626;
+        --fg: #111827;
+        --muted: #6b7280;
+        --bg: #ffffff;
+        --focus: #93c5fd;
+        --border: #e5e7eb;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+          "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      }
+
+      .stack {
+        display: grid;
+        gap: 22px;
+      }
+
+      .card {
+        width: min(560px, calc(100vw - 32px));
+        padding: 28px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        transition: opacity 200ms ease;
+      }
+
+      /* Reserve space: keep the card in the layout, just hide it */
+      .card.is-locked {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .prompt {
+        font-size: 56px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-align: center;
+        margin: 0 0 18px;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      input[type="text"] {
+        font-size: 40px;
+        padding: 10px 14px;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        outline: none;
+        width: 9ch;
+        text-align: center;
+        transition: border-color 120ms ease, color 120ms ease;
+      }
+
+      /* FIXED TYPO IS HERE */
+      input[type="text"]:focus {
+        border-color: var(--focus);
+      }
+
+      /* Let the name + age boxes be a little wider */
+      #intro,
+      #age {
+        width: 12ch;
+      }
+
+      input.bad {
+        color: var(--bad);
+        border-color: rgba(220, 38, 38, 0.55);
+      }
+
+      input.good {
+        color: var(--fg);
+        border-color: rgba(22, 163, 74, 0.55);
+      }
+
+      .check {
+        font-size: 34px;
+        line-height: 1;
+        color: var(--ok);
+        visibility: hidden;
+        user-select: none;
+      }
+
+      .check.visible {
+        visibility: visible;
+      }
+
+      .hint {
+        margin-top: 12px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      /* Screen-reader-only helper */
+      .sr-only {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
     </style>
-</head>
-<body>
-    <input type="text" placeholder="Enter text..."><br>
-    <input type="submit" value="Submit">
-</body>
+  </head>
+  <body>
+    <div class="stack">
+      <!-- Card 1 -->
+      <main class="card" aria-label="Typing card 你好">
+        <h1 class="prompt" aria-label="Prompt">你好！</h1>
+
+        <div class="row">
+          <label for="hanzi" class="sr-only">Type 你好！</label>
+          <input
+            id="hanzi"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-describedby="hint1"
+          />
+          <span id="check1" class="check" aria-label="Correct" title="Correct"
+            >✓</span
+          >
+        </div>
+
+        <div id="hint1" class="hint">Type exactly: ���好！</div>
+      </main>
+
+      <!-- Card 2 (locked until Card 1 correct) -->
+      <main class="card is-locked" id="card2" aria-label="Typing card 我叫">
+        <h1 class="prompt" aria-label="Prompt">我叫 (name)。</h1>
+
+        <div class="row">
+          <label for="intro" class="sr-only">Type 我叫 + your name + 。</label>
+          <input
+            id="intro"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-describedby="hint2"
+          />
+          <span id="check2" class="check" aria-label="Correct" title="Correct"
+            >✓</span
+          >
+        </div>
+
+        <div id="hint2" class="hint">
+          Type: 我叫 + your name + 。 (parentheses not included)
+        </div>
+      </main>
+
+      <!-- Card 3 (locked until Card 2 correct) -->
+      <main class="card is-locked" id="card3" aria-label="Typing card 我十三岁">
+        <h1 class="prompt" aria-label="Prompt">我十三岁。</h1>
+
+        <div class="row">
+          <label for="age" class="sr-only">Type 我十三岁。</label>
+          <input
+            id="age"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-describedby="hint3"
+          />
+          <span id="check3" class="check" aria-label="Correct" title="Correct"
+            >✓</span
+          >
+        </div>
+
+        <div id="hint3" class="hint">Type exactly: 我十三岁。</div>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        const input1 = document.getElementById("hanzi");
+        const check1 = document.getElementById("check1");
+        const target1 = "你好！";
+
+        const card2 = document.getElementById("card2");
+        const input2 = document.getElementById("intro");
+        const check2 = document.getElementById("check2");
+
+        const card3 = document.getElementById("card3");
+        const input3 = document.getElementById("age");
+        const check3 = document.getElementById("check3");
+        const target3 = "我十三岁。";
+
+        // Accept:
+        // - 我叫名字。
+        // - 我叫 名字。
+        // Rules:
+        // - must end with Chinese full stop "。"
+        // - must contain at least 1 char for the name
+        // - name cannot contain parentheses () or （）
+        const introRe = /^我叫\s*[^()（）]+。$/;
+
+        // Disable copy/paste/cut and context menu (best-effort).
+        const prevent = (e) => {
+          e.preventDefault();
+          return false;
+        };
+
+        [input1, input2, input3].forEach((input) => {
+          ["copy", "paste", "cut", "contextmenu"].forEach((evt) =>
+            input.addEventListener(evt, prevent)
+          );
+
+          // Prevent Ctrl/Cmd+C/V/X.
+          input.addEventListener("keydown", (e) => {
+            const key = (e.key || "").toLowerCase();
+            const isMod = e.ctrlKey || e.metaKey;
+            if (isMod && (key === "c" || key === "v" || key === "x")) {
+              e.preventDefault();
+            }
+          });
+        });
+
+        function unlock(card, input) {
+          if (!card) return;
+          if (!card.classList.contains("is-locked")) return;
+
+          card.classList.remove("is-locked");
+          requestAnimationFrame(() => input && input.focus());
+        }
+
+        function setState(input, check, ok) {
+          const value = input.value;
+          input.classList.toggle("good", ok);
+          input.classList.toggle("bad", value.length > 0 && !ok);
+          check.classList.toggle("visible", ok);
+        }
+
+        function update1() {
+          const ok = input1.value === target1;
+          setState(input1, check1, ok);
+          if (ok) unlock(card2, input2);
+        }
+
+        function update2() {
+          const ok = introRe.test(input2.value);
+          setState(input2, check2, ok);
+          if (ok) unlock(card3, input3);
+        }
+
+        function update3() {
+          const ok = input3.value === target3;
+          setState(input3, check3, ok);
+        }
+
+        input1.addEventListener("input", update1);
+        input2.addEventListener("input", update2);
+        input3.addEventListener("input", update3);
+
+        update1();
+        update2();
+        update3();
+
+        window.addEventListener("load", () => input1.focus());
+      })();
+    </script>
+  </body>
 </html>
