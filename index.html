@@ -90,69 +90,147 @@
         color: var(--muted);
         font-size: 14px;
       }
+
+      .stack {
+        display: grid;
+        gap: 22px;
+      }
+
+      .card + .card {
+        margin-top: 0;
+      }
     </style>
   </head>
   <body>
-    <main class="card">
-      <h1 class="prompt" aria-label="Prompt">你好！</h1>
+    <div class="stack">
+      <main class="card" aria-label="Typing card 你好">
+        <h1 class="prompt" aria-label="Prompt">你好！</h1>
 
-      <div class="row">
-        <label for="hanzi" class="sr-only" style="position:absolute;left:-9999px;">Type 你好！</label>
-        <input
-          id="hanzi"
-          type="text"
-          inputmode="text"
-          autocomplete="off"
-          autocapitalize="off"
-          autocorrect="off"
-          spellcheck="false"
-          aria-describedby="hint"
-        />
-        <span id="check" class="check" aria-label="Correct" title="Correct">✓</span>
-      </div>
+        <div class="row">
+          <label
+            for="hanzi"
+            class="sr-only"
+            style="position: absolute; left: -9999px"
+            >Type 你好！</label
+          >
+          <input
+            id="hanzi"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-describedby="hint"
+          />
+          <span
+            id="check"
+            class="check"
+            aria-label="Correct"
+            title="Correct"
+            >✓</span
+          >
+        </div>
 
-      <div id="hint" class="hint">Type the Simplified Chinese characters exactly: 你好！</div>
-    </main>
+        <div id="hint" class="hint">
+          Type the Simplified Chinese characters exactly: 你好！
+        </div>
+      </main>
+
+      <main class="card" aria-label="Typing card 我叫">
+        <h1 class="prompt" aria-label="Prompt">我叫 (name)。</h1>
+
+        <div class="row">
+          <label
+            for="intro"
+            class="sr-only"
+            style="position: absolute; left: -9999px"
+            >Type 我叫…。</label
+          >
+          <input
+            id="intro"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-describedby="hint2"
+          />
+          <span
+            id="check2"
+            class="check"
+            aria-label="Correct"
+            title="Correct"
+            >✓</span
+          >
+        </div>
+
+        <div id="hint2" class="hint">
+          Type: 我叫 + your name + 。 (parentheses not included)
+        </div>
+      </main>
+    </div>
 
     <script>
       (function () {
-        const target = "你好！";
-        const input = document.getElementById("hanzi");
-        const check = document.getElementById("check");
+        const input1 = document.getElementById("hanzi");
+        const check1 = document.getElementById("check");
+        const target1 = "你好！";
 
-        // Disable copy/paste/cut and context menu (best-effort).
+        const input2 = document.getElementById("intro");
+        const check2 = document.getElementById("check2");
+
+        // Allow either "我叫名字。" or "我叫 名字。" (flexible space)
+        // Require at least one character for the name, disallow parentheses in the typed name.
+        const introRe = /^我叫\s*[^()（）]+。$/;
+
+        // Disable copy/paste/cut and context menu (best-effort) for both inputs.
         const prevent = (e) => {
           e.preventDefault();
           return false;
         };
-        ["copy", "paste", "cut", "contextmenu"].forEach((evt) =>
-          input.addEventListener(evt, prevent)
-        );
 
-        // Prevent Ctrl/Cmd+C/V/X.
-        input.addEventListener("keydown", (e) => {
-          const key = (e.key || "").toLowerCase();
-          const isMod = e.ctrlKey || e.metaKey;
-          if (isMod && (key === "c" || key === "v" || key === "x")) {
-            e.preventDefault();
-          }
+        [input1, input2].forEach((input) => {
+          ["copy", "paste", "cut", "contextmenu"].forEach((evt) =>
+            input.addEventListener(evt, prevent)
+          );
+
+          // Prevent Ctrl/Cmd+C/V/X.
+          input.addEventListener("keydown", (e) => {
+            const key = (e.key || "").toLowerCase();
+            const isMod = e.ctrlKey || e.metaKey;
+            if (isMod && (key === "c" || key === "v" || key === "x")) {
+              e.preventDefault();
+            }
+          });
         });
 
-        function update() {
-          const value = input.value;
-          const ok = value === target;
+        function update1() {
+          const value = input1.value;
+          const ok = value === target1;
 
-          input.classList.toggle("good", ok);
-          input.classList.toggle("bad", value.length > 0 && !ok);
-
-          check.classList.toggle("visible", ok);
+          input1.classList.toggle("good", ok);
+          input1.classList.toggle("bad", value.length > 0 && !ok);
+          check1.classList.toggle("visible", ok);
         }
 
-        input.addEventListener("input", update);
-        update();
+        function update2() {
+          const value = input2.value;
+          const ok = introRe.test(value);
 
-        // Focus on load for convenience.
-        window.addEventListener("load", () => input.focus());
+          input2.classList.toggle("good", ok);
+          input2.classList.toggle("bad", value.length > 0 && !ok);
+          check2.classList.toggle("visible", ok);
+        }
+
+        input1.addEventListener("input", update1);
+        input2.addEventListener("input", update2);
+        update1();
+        update2();
+
+        // Focus first input on load for convenience.
+        window.addEventListener("load", () => input1.focus());
       })();
     </script>
   </body>
