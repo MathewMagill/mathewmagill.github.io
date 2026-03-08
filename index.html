@@ -99,6 +99,11 @@
       .card + .card {
         margin-top: 0;
       }
+
+      /* Keep second card hidden until first is correct */
+      .card.is-locked {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -137,7 +142,7 @@
         </div>
       </main>
 
-      <main class="card" aria-label="Typing card 我叫">
+      <main class="card is-locked" id="card2" aria-label="Typing card 我叫">
         <h1 class="prompt" aria-label="Prompt">我叫 (name)。</h1>
 
         <div class="row">
@@ -178,6 +183,7 @@
         const check1 = document.getElementById("check");
         const target1 = "你好！";
 
+        const card2 = document.getElementById("card2");
         const input2 = document.getElementById("intro");
         const check2 = document.getElementById("check2");
 
@@ -206,6 +212,16 @@
           });
         });
 
+        function unlockCard2() {
+          if (!card2) return;
+          if (!card2.classList.contains("is-locked")) return;
+
+          card2.classList.remove("is-locked");
+
+          // After DOM paints, focus the second input.
+          requestAnimationFrame(() => input2.focus());
+        }
+
         function update1() {
           const value = input1.value;
           const ok = value === target1;
@@ -213,6 +229,8 @@
           input1.classList.toggle("good", ok);
           input1.classList.toggle("bad", value.length > 0 && !ok);
           check1.classList.toggle("visible", ok);
+
+          if (ok) unlockCard2();
         }
 
         function update2() {
